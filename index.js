@@ -136,7 +136,7 @@ async function runServer() {
 
     app.get("/ideas", async (req, res) => {
       try {
-        const { search, category } = req.query;
+        const { search, category, startDate, endDate } = req.query;
         let databaseQueryFilter = {};
 
         if (search) {
@@ -145,6 +145,16 @@ async function runServer() {
 
         if (category && category !== "All") {
           databaseQueryFilter.category = category;
+        }
+
+        if (startDate || endDate) {
+          databaseQueryFilter.createdAt = {};
+          if (startDate) {
+            databaseQueryFilter.createdAt.$gte = new Date(startDate);
+          }
+          if (endDate) {
+            databaseQueryFilter.createdAt.$lte = new Date(endDate);
+          }
         }
 
         const matchedIdeas = await ideacollection
@@ -325,7 +335,7 @@ async function runServer() {
     });
 
     app.listen(port, () => {
-      console.log(`🚀 IdeaVault Express server active on local port: ${port}`);
+      console.log(`IdeaVault Express server active on local port: ${port}`);
     });
 
   } catch (error) {
