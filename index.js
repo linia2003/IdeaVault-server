@@ -1,6 +1,6 @@
-//const dns = require("dns");
+const dns = require("dns");
 
-//dns.setServers(["1.1.1.1", "8.8.8.8"]);
+dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
 const express = require("express");
 const cors = require("cors");
@@ -10,10 +10,23 @@ require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 5000;
 
-app.use(cors({
-  origin: process.env.CLIENT_URL,
-  credentials: true
-}));
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://ideavaultclient-beta.vercel.app'
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 const uri = process.env.MONGODB_URI;
